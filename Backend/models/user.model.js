@@ -27,7 +27,7 @@ const userSchema = new mongoose.Schema({
     required: [true, 'Password is required'],
     select: false,
   },
-  socketId: {   // (optional typo fix)
+  socketId: {   
     type: String,
   },
 });
@@ -75,5 +75,4 @@ userSchema.set('toJSON', {
 });
 
 const User = mongoose.model('User', userSchema);
-
 module.exports = User;
