@@ -22,7 +22,7 @@ const UserLogin = () => {
   }
 
   return (
-    <div className="p-7 flex flex-col h-screen justify-between">
+   <div className="p-7 flex flex-col h-screen justify-between">
       <div>
         <img
           className="w-16 mb-10"
@@ -77,7 +77,7 @@ const UserLogin = () => {
   Sign in as Captain
 </Link>
       </div>
-    </div>
+    </div> 
   )
 }
 
