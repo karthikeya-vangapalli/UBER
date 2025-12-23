@@ -53,14 +53,9 @@ userSchema.statics.hashPassword = async function (password) {
 };
 
 
-userSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) return next();
-  try {
-    this.password = await this.constructor.hashPassword(this.password);
-    return next();
-  } catch (err) {
-    return next(err);
-  }
+userSchema.pre('save', async function () {
+  if (!this.isModified('password')) return;
+  this.password = await this.constructor.hashPassword(this.password);
 });
 
 

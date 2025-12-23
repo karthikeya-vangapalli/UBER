@@ -1,5 +1,7 @@
-import { Link } from "react-router-dom";
-import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import React, { useState, useContext } from "react";
+import axios from "axios";
+import { UserDataContext } from "../context/usercontext.jsx";
 
 const UserSignup = () => {
   const [fullname, setFullname] = useState({
@@ -9,29 +11,47 @@ const UserSignup = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleSubmit = (e) => {
+  const navigate = useNavigate();
+  const { user, setUser } = useContext(UserDataContext);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const data = {
-      fullName:{
-        firstName: fullname.firstname,
-        lastName: fullname.lastname
-      },
-      email,
-      password,
-    };
+    try {
+          const newUser = {
+  fullname: {
+    firstname: fullname.firstname,
+    lastname: fullname.lastname,
+  },
+  email,
+  password,
+};
 
-    // console.log("User signup data:", data);
+      const response = await axios.post(
+        `${import.meta.env.VITE_BASE_URL}/users/register`,
+        newUser,
+        { withCredentials: true }
+      );
 
-    setFullname({ firstname: "", lastname: "" });
-    setEmail("");
-    setPassword("");
+      if (response.status === 201) {
+        setUser(response.data.user);
+        localStorage.setItem('token', res.data.token);
+        navigate("/Home");
+      }
+
+      setFullname({ firstname: "", lastname: "" });
+      setEmail("");
+      setPassword("");
+    } catch (error) {
+      console.error(
+        "Signup failed:",
+        error.response?.data || error.message
+      );
+    }
   };
 
   return (
     <div className="min-h-screen flex flex-col">
-      
-      {/* Header */}
       <div className="bg-black w-full h-16 flex items-center">
         <img
           className="w-20 ml-4 object-contain"
@@ -40,12 +60,9 @@ const UserSignup = () => {
         />
       </div>
 
-      {/* Content */}
       <div className="flex-1 p-6 flex flex-col justify-between">
         <form onSubmit={handleSubmit}>
-          <h3 className="text-xl font-semibold mb-2">
-            What’s your name?
-          </h3>
+          <h3 className="text-xl font-semibold mb-2">What’s your name?</h3>
 
           <div className="flex gap-3 mb-4">
             <input
@@ -55,7 +72,6 @@ const UserSignup = () => {
                 setFullname({ ...fullname, firstname: e.target.value })
               }
               className="bg-[#eeeeee] w-1/2 rounded px-4 py-2 border text-lg"
-              type="text"
               placeholder="First name"
             />
 
@@ -66,15 +82,11 @@ const UserSignup = () => {
                 setFullname({ ...fullname, lastname: e.target.value })
               }
               className="bg-[#eeeeee] w-1/2 rounded px-4 py-2 border text-lg"
-              type="text"
               placeholder="Last name"
             />
           </div>
 
-          <h3 className="text-xl font-semibold mb-2">
-            What’s your email?
-          </h3>
-
+          <h3 className="text-xl font-semibold mb-2">What’s your email?</h3>
           <input
             required
             value={email}
@@ -84,10 +96,7 @@ const UserSignup = () => {
             placeholder="email@example.com"
           />
 
-          <h3 className="text-xl font-semibold mb-2">
-            Create password
-          </h3>
-
+          <h3 className="text-xl font-semibold mb-2">Create password</h3>
           <input
             required
             value={password}
@@ -97,15 +106,11 @@ const UserSignup = () => {
             placeholder="Password"
           />
 
-          <button
-            type="submit"
-            className="bg-black text-white w-full py-2 rounded-lg text-lg"
-          >
-            Continue
+          <button className="bg-black text-white w-full py-2 rounded-lg text-lg">
+            Create Account
           </button>
         </form>
 
-         
         <div className="text-center text-sm space-y-2">
           <p>
             Already have an account?{" "}
@@ -113,10 +118,9 @@ const UserSignup = () => {
               Login
             </Link>
           </p>
-
           <p className="text-xs text-gray-600">
-            By continuing, you agree to calls, including by autodialer, WhatsApp,
-            or texts from Uber and its affiliates.
+            By continuing, you agree to calls, WhatsApp, or texts from Uber and
+            its affiliates.
           </p>
         </div>
       </div>
@@ -124,4 +128,4 @@ const UserSignup = () => {
   );
 };
 
-export default UserSignup
+export default UserSignup;
