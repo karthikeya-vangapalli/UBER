@@ -1,21 +1,37 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState, useContext } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
+import { CaptainContext } from "../context/CaptainContext";
 
 const CaptainLogin = () => {
+  const navigate = useNavigate();
+  const { setCaptain } = useContext(CaptainContext);
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [captainData, setCaptainData] = useState(''); 
 
-  const submitHandler = (e) => {
+  const submitHandler = async (e) => {
     e.preventDefault();
 
-    const data = {
-      email,
-      password,
-    };
+    try {
+      const res = await axios.post(
+        `${import.meta.env.VITE_BASE_URL}/captains/login`,
+        { email, password },
+        { withCredentials: true }
+      );
 
-    console.log("Captain Login Data:", data);
+      // set captain in context
+      setCaptain(res.data.captain);
 
+      // store token for CaptainProtectWrapper
+      localStorage.setItem("token", res.data.token);
+
+      // redirect to captain home
+      navigate("/captain/home");
+    } catch (error) {
+      console.error("Captain login failed:", error.response?.data);
+      alert("Invalid email or password");
+    }
 
     setEmail("");
     setPassword("");
@@ -24,37 +40,31 @@ const CaptainLogin = () => {
   return (
     <div className="p-7 flex flex-col h-screen justify-between">
       <div>
-        {/* Logo */}
         <img
           className="w-16 mb-10"
           src="https://upload.wikimedia.org/wikipedia/commons/c/cc/Uber_logo_2018.png"
           alt="Uber Logo"
         />
 
-        {/* Form */}
         <form onSubmit={submitHandler} className="space-y-4 mb-4">
-          <h3 className="text-lg font-medium mb-2">
-            Captain email
-          </h3>
+          <h3 className="text-lg font-medium">Captain email</h3>
 
           <input
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="bg-[#eeeeee] mb-5 rounded px-4 py-2 border w-full text-lg"
+            className="bg-[#eeeeee] rounded px-4 py-2 border w-full text-lg"
             type="email"
             placeholder="captain@example.com"
           />
 
-          <h3 className="text-lg font-medium mb-2">
-            Enter password
-          </h3>
+          <h3 className="text-lg font-medium">Password</h3>
 
           <input
             required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="bg-[#eeeeee] mb-6 rounded px-4 py-2 border w-full text-lg"
+            className="bg-[#eeeeee] rounded px-4 py-2 border w-full text-lg"
             type="password"
             placeholder="password"
           />
@@ -75,15 +85,12 @@ const CaptainLogin = () => {
         </form>
       </div>
 
-     
-      <div>
-        <Link
-          to="/login"
-          className="block bg-[#111] mt-8 text-white font-semibold rounded px-4 py-2 w-full text-lg text-center"
-        >
-          Sign in as User
-        </Link>
-      </div>
+      <Link
+        to="/login"
+        className="block bg-[#111] text-white font-semibold rounded px-4 py-2 w-full text-lg text-center"
+      >
+        Sign in as User
+      </Link>
     </div>
   );
 };

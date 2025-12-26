@@ -12,33 +12,40 @@ const UserSignup = () => {
   const [password, setPassword] = useState("");
 
   const navigate = useNavigate();
-  const { user, setUser } = useContext(UserDataContext);
+  const { setUser } = useContext(UserDataContext);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    try {
-          const newUser = {
-  fullname: {
-    firstname: fullname.firstname,
-    lastname: fullname.lastname,
-  },
-  email,
-  password,
-};
+    const newUser = {
+      fullname: {
+        firstname: fullname.firstname,
+        lastname: fullname.lastname,
+      },
+      email,
+      password,
+    };
 
+    try {
       const response = await axios.post(
         `${import.meta.env.VITE_BASE_URL}/users/register`,
         newUser,
         { withCredentials: true }
       );
 
-      if (response.status === 201) {
+      // ✅ save user if returned
+      if (response.data.user) {
         setUser(response.data.user);
-        localStorage.setItem('token', res.data.token);
-        navigate("/Home");
       }
 
+      // ✅ save token if returned
+      if (response.data.token) {
+        localStorage.setItem("token", response.data.token);
+      }
+
+      navigate("/home"); // ✅ correct route
+
+      // reset form
       setFullname({ firstname: "", lastname: "" });
       setEmail("");
       setPassword("");
@@ -47,6 +54,7 @@ const UserSignup = () => {
         "Signup failed:",
         error.response?.data || error.message
       );
+      alert(error.response?.data?.message || "Signup failed");
     }
   };
 
@@ -128,4 +136,4 @@ const UserSignup = () => {
   );
 };
 
-export default UserSignup;
+export default UserSignup

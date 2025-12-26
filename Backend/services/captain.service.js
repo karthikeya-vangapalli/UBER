@@ -1,48 +1,11 @@
-const captainModel = require('../models/captain.model');
-const BlacklistTokenModel = require('../models/blacklistToken.model');
+const Captain = require("../models/captain.model");
 
 
-module.exports.createCaption = async ({
-  firstname,
-  lastname,
-  email,
-  password,
-  color,
-  plate,
-  capacity,
-  vechicalType
-}) => {
-  if (
-    !firstname ||
-    !email ||
-    !password ||
-    !color ||
-    !plate ||
-    !capacity ||
-    !vechicalType
-  ) {
-    throw new Error('All fields are required');
-  }
-
-  const caption = await captainModel.create({
-    fullname: {
-      firstname,
-      lastname
-    },
+module.exports.createCaptain = async ({ fullname, email, password, vechical }) => {
+  return await Captain.create({
+    fullname,
     email,
-    password,
-    vechical: {
-      color,
-      plate,
-      capacity,
-      vechicalType
-    }
+    password,   
+    vechical,
   });
-
-  return caption;
-};
-
-
-module.exports.blacklistToken = async (token) => {
-  return await BlacklistTokenModel.create({ token });
 };

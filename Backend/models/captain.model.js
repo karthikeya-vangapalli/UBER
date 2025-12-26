@@ -1,83 +1,46 @@
-const mongoose = require('mongoose');
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
+const mongoose = require("mongoose");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 
 const captainSchema = new mongoose.Schema({
   fullname: {
-    firstname: {
-      type: String,
-      required: [true, 'First name is required'],
-      minlength: [2, 'First name must be at least 2 characters long'],
-    },
-    lastname: {
-      type: String,
-      minlength: [2, 'Last name must be at least 2 characters long'],
-    },
+    firstname: { type: String, required: true },
+    lastname: { type: String },
   },
   email: {
     type: String,
-    required: [true, 'Email is required'],
+    required: true,
     unique: true,
-    match: [
-      /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
-      'Please fill a valid email address',
-    ],
   },
   password: {
     type: String,
-    required: [true, 'Password is required'],
-  },
-  socketId: {
-    type: String,
-  },
-  status: {
-    type: String,
-    enum: ['active', 'inactive'],
-    default: 'inactive',
+    required: true,
+    select: false,
   },
   vechical: {
-    color: {
-      type: String,
-      required: [true, 'Vechical color is required'],
-    },
-    plate: {
-      type: String,
-      required: [true, 'Vechical plate number is required'],
-    },
-    capacity: {
-      type: Number,
-      required: [true, 'Vechical capacity is required'],
-      min: [1, 'Capacity must be at least 1'],
-    },
-    vechicalType: {
-      type: String,
-      required: [true, 'Vechical type is required'],
-      enum: ['car','motercycle','auto'],
-    }
+    color: String,
+    plate: String,
+    capacity: Number,
+    vechicalType: String,
   },
-  location: {
-    lat: {
-      type: Number,
-    },
-    lng: {
-      type: Number,
-    },
-  }
 });
 
-captainSchema.methods.generateAuthToken = function () {
-  const token = jwt.sign({ id: this._id }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRES_IN || '24h',
-  });
-  return token;
-};
+/* 🔐 HASH PASSWORD BEFORE SAVE */
+captainSchema.pre("save", async function () {
+  if (!this.isModified("password")) return;
+  this.password = await bcrypt.hash(this.password, 10);
+});
 
-captainSchema.methods.comparePassword = async function (enteredPassword) {
+/* 🔑 COMPARE PASSWORD */
+captainSchema.methods.comparePassword = function (enteredPassword) {
   return bcrypt.compare(enteredPassword, this.password);
 };
 
-captainSchema.statics.hashPassword = async function (password) {
-  return bcrypt.hash(password, 10);
+/* 🔐 JWT TOKEN */
+captainSchema.methods.generateAuthToken = function () {
+  return jwt.sign({ id: this._id }, process.env.JWT_SECRET, {
+    expiresIn: "1d",
+  });
 };
 
-module.exports = mongoose.model('Captain', captainSchema);
+module.exports = mongoose.model("Captain", captainSchema);

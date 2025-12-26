@@ -86,6 +86,13 @@ module.exports.loginUser = async (req, res) => {
   }
 };
 
+
+module.exports.getUserProfile = async (req, res) => {
+  res.status(200).json({
+    user: req.user
+  });
+};
+
 /* ================= LOGOUT USER ================= */
 module.exports.logoutUser = async (req, res) => {
   try {
