@@ -17,11 +17,7 @@ connectToDb();
 
 // ✅ CORS FIX (IMPORTANT for deployment)
 app.use(cors({
-  origin: [
-    "http://localhost:5173",
-    "http://localhost:5179",
-    process.env.FRONTEND_URL   // 👈 ADD THIS
-  ],
+  origin: process.env.FRONTEND_URL,
   credentials: true,
 }));
 
